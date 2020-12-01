@@ -240,6 +240,23 @@ volatile static int init_count = 0;
   }
   inline void pm_set_root(void* ptr, unsigned int i) { ((PMDK_roots*)pmemobj_direct(root))->roots[i] = ptr; }
 
+#elif defined(LSMALLOC)
+  #include"lsmalloc.h" 
+
+  extern void* roots[1024];
+  inline void* pm_malloc(size_t s) { return malloc(s); }
+  inline void pm_free(void* p) { free(p);}
+  inline void* pm_realloc(void* ptr, size_t new_size) { return realloc(ptr, new_size); }
+  inline void* pm_calloc(size_t num, size_t size) { return calloc(num, size); }
+  inline int pm_init() { return 0; }
+  inline void pm_close() { return; }
+  inline void pm_recover() { assert(0 && "not implemented"); }
+  template<class T>
+  inline T* pm_get_root(unsigned int i){
+    return (T*)roots[i];
+  }
+  inline void pm_set_root(void* ptr, unsigned int i) { roots[i] = ptr; }
+
 #else // PMDK ends
 
   extern void* roots[1024];

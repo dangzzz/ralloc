@@ -47,34 +47,9 @@ int work = 0;		// Default number of loop iterations.
 int sz = 1;
 
 
-class Foo {
-public:
-  Foo (void)
-    : x (14),
-      y (29)
-    {}
-
-  int x;
-  int y;
-  void*
-  operator new(std::size_t size) {
-    return pm_malloc(size);
-  }
-
-  void*
-  operator new[](std::size_t size) {
-    return pm_malloc(size);
-  }
-
-  void
-  operator delete(void *ptr) noexcept {
-    pm_free(ptr);
-  }
-
-  void
-  operator delete[](void *ptr) noexcept {
-    pm_free(ptr);
-  }
+struct Foo{
+  int x =22;
+  int y = 23;
 };
 
 
@@ -109,12 +84,17 @@ extern "C" void * worker (void * arg)
 #endif
   int i, j;
   Foo ** a;
-  a = new Foo * [nobjects / nthreads];
+
+  a = (Foo **)malloc(8*nobjects / nthreads);
   for (j = 0; j < niterations; j++) {
 
     // printf ("%d\n", j);
     for (i = 0; i < (nobjects / nthreads); i ++) {
-      a[i] = new Foo[sz];
+#ifdef LSMALLOC
+      a[i] = (Foo *)lsmalloc(sz*sizeof(Foo),&a[i]);
+#else
+      a[i] = (Foo *)pm_malloc(sz*sizeof(Foo));
+#endif
       for (volatile int d = 0; d < work; d++) {
 	volatile int f = 1;
 	f = f + f;
@@ -126,7 +106,12 @@ extern "C" void * worker (void * arg)
     }
 
     for (i = 0; i < (nobjects / nthreads); i ++) {
-      delete[] a[i];
+#ifdef LSMALLOC
+      lsfree(a[i]);
+#else
+      pm_free(a[i]);
+#endif
+      
       for (volatile int d = 0; d < work; d++) {
 	volatile int f = 1;
 	f = f + f;
@@ -137,7 +122,7 @@ extern "C" void * worker (void * arg)
     }
   }
 
-  delete [] a;
+  free(a);
 
   return NULL;
 }

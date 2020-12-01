@@ -15,12 +15,14 @@ FLAGS = -O3 -g -fpermissive $(WARNING_FLAGS) -fno-omit-frame-pointer -fPIC #-DSH
 RALLOC_FLAGS = $(FLAGS) -DRALLOC -L.
 MAKALU_FLAGS = $(FLAGS) -I../ext/makalu_alloc/include -DMAKALU -L../ext/makalu_alloc/lib -lmakalu 
 PMDK_FLAGS = $(FLAGS) -DPMDK -lpmemobj 
+LSMALLOC_FLAGS = $(FLAGS) -I../ext/lsmalloc/include/lsmalloc -DLSMALLOC -L../ext/lsmalloc/lib -llsmalloc -lthreadpool -lpmem
 
 R_CXXFLAGS = $(RALLOC_FLAGS) -ljemalloc -L. -lralloc 
 MAK_CXXFLAGS = $(MAKALU_FLAGS) -ljemalloc 
 JE_CXXFLAGS = $(FLAGS) -ljemalloc
 LR_CXXFLAGS = $(FLAGS) -L../ext/lrmalloc -l:lrmalloc.a -ldl# for built-in malloc
 PMDK_CXXFLAGS = $(PMDK_FLAGS) -ljemalloc
+LSMALLOC_CXXFLAGS = $(LSMALLOC_FLAGS) -ljemalloc
 
 # Ralloc by default
 CXXFLAGS = $(R_CXXFLAGS)
@@ -43,6 +45,11 @@ endif
 
 ifeq ($(ALLOC),pmdk)
 	CXXFLAGS = $(PMDK_CXXFLAGS)
+endif
+
+
+ifeq ($(ALLOC),lsmalloc)
+	CXXFLAGS = $(LSMALLOC_CXXFLAGS)
 endif
 
 LIBS = -pthread -lstdc++ -latomic 

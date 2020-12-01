@@ -1,0 +1,7 @@
+thread,exec_time,allocator
+1,0.008372,lsmalloc
+2,0.005344,lsmalloc
+1,0.008063,lsmalloc
+2,0.005343,lsmalloc
+1,0.008177,lsmalloc
+2,0.005194,lsmalloc

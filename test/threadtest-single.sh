@@ -24,7 +24,7 @@ fi
 THREADS=$1
 
 rm /tmp/threadtest
-$BINARY $THREADS 10000 100000 0 8 > /tmp/threadtest
+$BINARY $THREADS 10 1000 0 40 > /tmp/threadtest
 
 while read line; do
   if [[ $line == *"Time elapsed"* ]]; then
